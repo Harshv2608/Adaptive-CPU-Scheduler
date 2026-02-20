@@ -26,5 +26,6 @@ void fcfs(struct Process p[], int n);
 void calculate_metrics(struct Process p[], int n);
 void round_robin(struct Process p[], int n, int quantum);
 void priority_preemptive(struct Process p[], int n);
+void hybrid_scheduler(struct Process p[], int n, int quantum);
 
 #endif

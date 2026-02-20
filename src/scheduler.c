@@ -182,19 +182,120 @@ void priority_preemptive(struct Process p[], int n) {
         }
     }
 }
+void hybrid_scheduler(struct Process p[], int n, int quantum) {
+
+    int current_time = 0;
+    int completed = 0;
+    int rr_counter = 0;   // Track quantum usage
+    int last_rr_index = -1;
+
+    while (completed < n) {
+
+        int index = -1;
+
+        // -------------------------
+        // 1️⃣ Check Real-Time Processes
+        // -------------------------
+        int highest_priority = 9999;
+
+        for (int i = 0; i < n; i++) {
+            if (p[i].arrival_time <= current_time &&
+                p[i].remaining_time > 0 &&
+                p[i].type == REAL_TIME) {
+
+                if (p[i].priority < highest_priority) {
+                    highest_priority = p[i].priority;
+                    index = i;
+                }
+            }
+        }
+
+        // -------------------------
+        // 2️⃣ If no Real-Time, check Interactive (Round Robin)
+        // -------------------------
+        if (index == -1) {
+
+            for (int i = 0; i < n; i++) {
+                if (p[i].arrival_time <= current_time &&
+                    p[i].remaining_time > 0 &&
+                    p[i].type == INTERACTIVE) {
+
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index != -1) {
+
+                if (last_rr_index == index)
+                    rr_counter++;
+                else {
+                    rr_counter = 1;
+                    last_rr_index = index;
+                }
+
+                if (rr_counter > quantum) {
+                    rr_counter = 1;
+                }
+            }
+        }
+
+        // -------------------------
+        // 3️⃣ If no Interactive, check Batch (SJF style)
+        // -------------------------
+        if (index == -1) {
+
+            int shortest_time = 9999;
+
+            for (int i = 0; i < n; i++) {
+                if (p[i].arrival_time <= current_time &&
+                    p[i].remaining_time > 0 &&
+                    p[i].type == BATCH) {
+
+                    if (p[i].remaining_time < shortest_time) {
+                        shortest_time = p[i].remaining_time;
+                        index = i;
+                    }
+                }
+            }
+        }
+
+        // -------------------------
+        // 4️⃣ If no process available
+        // -------------------------
+        if (index == -1) {
+            current_time++;
+            continue;
+        }
+
+        // Execute selected process
+        p[index].remaining_time--;
+        current_time++;
+
+        // If completed
+        if (p[index].remaining_time == 0) {
+            completed++;
+            p[index].completion_time = current_time;
+            p[index].turnaround_time =
+                current_time - p[index].arrival_time;
+            p[index].waiting_time =
+                p[index].turnaround_time - p[index].burst_time;
+        }
+    }
+}
 
 int main() {
     struct Process processes[MAX_PROCESSES];
     int n;
+    int quantum = 2;
 
     input_processes(processes, &n);
 
     for (int i = 0; i < n; i++)
         processes[i].remaining_time = processes[i].burst_time;
 
-    priority_preemptive(processes, n);
+    hybrid_scheduler(processes, n, quantum);
     calculate_metrics(processes, n);
 
     return 0;
 }
-
