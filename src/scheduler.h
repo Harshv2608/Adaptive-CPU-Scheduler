@@ -3,7 +3,7 @@
 
 #define MAX_PROCESSES 50
 
-// Process Types
+/* Process Types */
 #define REAL_TIME 1
 #define INTERACTIVE 2
 #define BATCH 3
@@ -15,17 +15,16 @@ struct Process {
     int remaining_time;
     int priority;
     int type;
+
     int completion_time;
     int waiting_time;
     int turnaround_time;
+    int response_time;
+    int started;
 };
 
 void input_processes(struct Process p[], int *n);
-void display_processes(struct Process p[], int n);
-void fcfs(struct Process p[], int n);
-void calculate_metrics(struct Process p[], int n);
-void round_robin(struct Process p[], int n, int quantum);
-void priority_preemptive(struct Process p[], int n);
 void hybrid_scheduler(struct Process p[], int n, int quantum);
+void calculate_metrics(struct Process p[], int n);
 
 #endif
