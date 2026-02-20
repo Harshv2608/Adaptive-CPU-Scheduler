@@ -79,16 +79,76 @@ void calculate_metrics(struct Process p[], int n) {
     printf("\nAverage Waiting Time: %.2f\n", total_wt / n);
     printf("Average Turnaround Time: %.2f\n", total_tat / n);
 }
+void round_robin(struct Process p[], int n, int quantum) {
+
+    int current_time = 0;
+    int completed = 0;
+    int queue[MAX_PROCESSES];
+    int front = 0, rear = 0;
+
+    // Reset remaining time
+    for (int i = 0; i < n; i++) {
+        p[i].remaining_time = p[i].burst_time;
+    }
+
+    // Add processes that arrive at time 0
+    for (int i = 0; i < n; i++) {
+        if (p[i].arrival_time == 0) {
+            queue[rear++] = i;
+        }
+    }
+
+    while (completed < n) {
+
+        if (front == rear) {
+            current_time++;
+            for (int i = 0; i < n; i++) {
+                if (p[i].arrival_time == current_time) {
+                    queue[rear++] = i;
+                }
+            }
+            continue;
+        }
+
+        int index = queue[front++];
+        
+        if (p[index].remaining_time > quantum) {
+            current_time += quantum;
+            p[index].remaining_time -= quantum;
+        } else {
+            current_time += p[index].remaining_time;
+            p[index].remaining_time = 0;
+            completed++;
+
+            p[index].completion_time = current_time;
+            p[index].turnaround_time = current_time - p[index].arrival_time;
+            p[index].waiting_time = p[index].turnaround_time - p[index].burst_time;
+        }
+
+        // Add newly arrived processes
+        for (int i = 0; i < n; i++) {
+            if (p[i].arrival_time > current_time - quantum &&
+                p[i].arrival_time <= current_time) {
+                queue[rear++] = i;
+            }
+        }
+
+        // If not finished, add back to queue
+        if (p[index].remaining_time > 0) {
+            queue[rear++] = index;
+        }
+    }
+}
 
 int main() {
     struct Process processes[MAX_PROCESSES];
     int n;
+    int quantum = 2;
 
     input_processes(processes, &n);
 
-    fcfs(processes, n);
+    round_robin(processes, n, quantum);
     calculate_metrics(processes, n);
 
     return 0;
 }
-

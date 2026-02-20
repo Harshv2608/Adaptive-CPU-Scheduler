@@ -24,5 +24,6 @@ void input_processes(struct Process p[], int *n);
 void display_processes(struct Process p[], int n);
 void fcfs(struct Process p[], int n);
 void calculate_metrics(struct Process p[], int n);
+void round_robin(struct Process p[], int n, int quantum);
 
 #endif
