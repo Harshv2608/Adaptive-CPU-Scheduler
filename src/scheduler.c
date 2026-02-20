@@ -2,7 +2,7 @@
 #include "scheduler.h"
 
 /* ===============================
-   INPUT
+   INPUT FUNCTION
 ================================ */
 
 void input_processes(struct Process p[], int *n) {
@@ -46,6 +46,8 @@ void hybrid_scheduler(struct Process p[], int n, int quantum) {
     int current_time = 0;
     int completed = 0;
     int last_interactive = -1;
+
+    int timeline[MAX_TIME];
 
     while (completed < n) {
 
@@ -100,8 +102,11 @@ void hybrid_scheduler(struct Process p[], int n, int quantum) {
                             ? p[index].remaining_time
                             : quantum;
 
-                p[index].remaining_time -= slice;
-                current_time += slice;
+                for (int t = 0; t < slice; t++) {
+                    timeline[current_time] = p[index].pid;
+                    p[index].remaining_time--;
+                    current_time++;
+                }
 
                 if (p[index].remaining_time == 0) {
                     completed++;
@@ -141,12 +146,13 @@ void hybrid_scheduler(struct Process p[], int n, int quantum) {
         ========================== */
 
         if (index == -1) {
+            timeline[current_time] = 0;  // idle
             current_time++;
             continue;
         }
 
         /* ==========================
-           Execute 1 time unit
+           Execute 1 unit (RT or Batch)
         ========================== */
 
         if (!p[index].started) {
@@ -155,6 +161,7 @@ void hybrid_scheduler(struct Process p[], int n, int quantum) {
             p[index].started = 1;
         }
 
+        timeline[current_time] = p[index].pid;
         p[index].remaining_time--;
         current_time++;
 
@@ -167,6 +174,8 @@ void hybrid_scheduler(struct Process p[], int n, int quantum) {
                 p[index].turnaround_time - p[index].burst_time;
         }
     }
+
+    print_gantt(timeline, current_time);
 }
 
 /* ===============================
@@ -195,7 +204,41 @@ void calculate_metrics(struct Process p[], int n) {
 
     printf("\nAverage Waiting Time: %.2f", total_wt / n);
     printf("\nAverage Turnaround Time: %.2f", total_tat / n);
-    printf("\nAverage Response Time: %.2f\n", total_rt / n);
+    printf("Average Response Time: %.2f\n", total_rt / n);
+}
+
+/* ===============================
+   GANTT CHART
+================================ */
+
+void print_gantt(int timeline[], int length) {
+
+    printf("\n\nGantt Chart:\n|");
+
+    int prev = -1;
+
+    for (int i = 0; i < length; i++) {
+        if (timeline[i] != prev) {
+            if (timeline[i] == 0)
+                printf(" Idle |");
+            else
+                printf(" P%d |", timeline[i]);
+            prev = timeline[i];
+        }
+    }
+
+    printf("\n0");
+
+    prev = timeline[0];
+
+    for (int i = 1; i < length; i++) {
+        if (timeline[i] != prev) {
+            printf("    %d", i);
+            prev = timeline[i];
+        }
+    }
+
+    printf("    %d\n", length);
 }
 
 /* ===============================

@@ -2,6 +2,7 @@
 #define SCHEDULER_H
 
 #define MAX_PROCESSES 50
+#define MAX_TIME 1000
 
 /* Process Types */
 #define REAL_TIME 1
@@ -26,5 +27,6 @@ struct Process {
 void input_processes(struct Process p[], int *n);
 void hybrid_scheduler(struct Process p[], int n, int quantum);
 void calculate_metrics(struct Process p[], int n);
+void print_gantt(int timeline[], int length);
 
 #endif
