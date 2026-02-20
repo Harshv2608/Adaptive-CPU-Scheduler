@@ -139,16 +139,62 @@ void round_robin(struct Process p[], int n, int quantum) {
         }
     }
 }
+void priority_preemptive(struct Process p[], int n) {
+
+    int current_time = 0;
+    int completed = 0;
+    int is_completed[MAX_PROCESSES] = {0};
+
+    while (completed < n) {
+
+        int highest_priority = 9999;
+        int index = -1;
+
+        for (int i = 0; i < n; i++) {
+            if (p[i].arrival_time <= current_time &&
+                !is_completed[i] &&
+                p[i].remaining_time > 0) {
+
+                if (p[i].priority < highest_priority) {
+                    highest_priority = p[i].priority;
+                    index = i;
+                }
+            }
+        }
+
+        if (index == -1) {
+            current_time++;
+            continue;
+        }
+
+        p[index].remaining_time--;
+        current_time++;
+
+        if (p[index].remaining_time == 0) {
+            completed++;
+            is_completed[index] = 1;
+
+            p[index].completion_time = current_time;
+            p[index].turnaround_time =
+                p[index].completion_time - p[index].arrival_time;
+            p[index].waiting_time =
+                p[index].turnaround_time - p[index].burst_time;
+        }
+    }
+}
 
 int main() {
     struct Process processes[MAX_PROCESSES];
     int n;
-    int quantum = 2;
 
     input_processes(processes, &n);
 
-    round_robin(processes, n, quantum);
+    for (int i = 0; i < n; i++)
+        processes[i].remaining_time = processes[i].burst_time;
+
+    priority_preemptive(processes, n);
     calculate_metrics(processes, n);
 
     return 0;
 }
+
