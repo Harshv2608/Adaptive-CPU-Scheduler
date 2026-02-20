@@ -42,13 +42,53 @@ void display_processes(struct Process p[], int n) {
                p[i].type);
     }
 }
+void fcfs(struct Process p[], int n) {
+    int current_time = 0;
+
+    for (int i = 0; i < n; i++) {
+
+        // If CPU is idle
+        if (current_time < p[i].arrival_time) {
+            current_time = p[i].arrival_time;
+        }
+
+        current_time += p[i].burst_time;
+
+        p[i].completion_time = current_time;
+        p[i].turnaround_time = p[i].completion_time - p[i].arrival_time;
+        p[i].waiting_time = p[i].turnaround_time - p[i].burst_time;
+    }
+}
+void calculate_metrics(struct Process p[], int n) {
+    float total_wt = 0, total_tat = 0;
+
+    printf("\nFCFS Scheduling Results:\n");
+    printf("PID\tCT\tTAT\tWT\n");
+
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t%d\t%d\n",
+               p[i].pid,
+               p[i].completion_time,
+               p[i].turnaround_time,
+               p[i].waiting_time);
+
+        total_wt += p[i].waiting_time;
+        total_tat += p[i].turnaround_time;
+    }
+
+    printf("\nAverage Waiting Time: %.2f\n", total_wt / n);
+    printf("Average Turnaround Time: %.2f\n", total_tat / n);
+}
 
 int main() {
     struct Process processes[MAX_PROCESSES];
     int n;
 
     input_processes(processes, &n);
-    display_processes(processes, n);
+
+    fcfs(processes, n);
+    calculate_metrics(processes, n);
 
     return 0;
 }
+
