@@ -4,6 +4,8 @@ import "./globals.css";
 import { Topbar } from "@/components/layout/Topbar";
 import { Sidebar } from "@/components/layout/Sidebar";
 
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -19,13 +21,15 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} h-screen flex flex-col overflow-hidden`}>
-        <Topbar />
-        <div className="flex-1 flex overflow-hidden">
-          <Sidebar />
-          <main className="flex-1 flex flex-col overflow-hidden">
-            {children}
-          </main>
-        </div>
+        <TooltipProvider>
+          <Topbar />
+          <div className="flex-1 flex overflow-hidden">
+            <Sidebar />
+            <main className="flex-1 flex flex-col overflow-hidden">
+              {children}
+            </main>
+          </div>
+        </TooltipProvider>
       </body>
     </html>
   );

@@ -18,7 +18,7 @@ exports.getAlgorithms = (req, res) => {
 };
 
 exports.simulate = async (req, res) => {
-    const { processes } = req.body;
+    const { processes, simulation } = req.body;
     
     const validationError = validateSimulationRequest(processes);
     if (validationError) {
@@ -29,7 +29,7 @@ exports.simulate = async (req, res) => {
     }
 
     try {
-        const result = await schedulerService.runSimulation(processes);
+        const result = await schedulerService.runSimulation(processes, simulation);
         res.status(200).json(result);
     } catch (error) {
         if (error.code === 'TIMEOUT') {

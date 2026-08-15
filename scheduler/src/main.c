@@ -40,9 +40,20 @@ void print_comparison(struct Result h, struct Result f, struct Result s, struct 
 
 int main(int argc, char *argv[]) {
     int json_mode = 0;
+    char algorithm[20] = "HYBRID";
+    int time_quantum = 2; // Default for RR
+    
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--json") == 0) {
             json_mode = 1;
+        } else if (strcmp(argv[i], "--algo") == 0 && i + 1 < argc) {
+            strncpy(algorithm, argv[i+1], 19);
+            algorithm[19] = '\0';
+            i++;
+        } else if (strcmp(argv[i], "--quantum") == 0 && i + 1 < argc) {
+            time_quantum = atoi(argv[i+1]);
+            if (time_quantum <= 0) time_quantum = 2;
+            i++;
         }
     }
 
@@ -96,13 +107,29 @@ int main(int argc, char *argv[]) {
     }
 
     copy_processes(original, temp, n);
-    r_h = hybrid_scheduler(temp, n);
-
     if (json_mode) {
-        // Output json for hybrid
-        print_json_output(temp, n, &r_h, 0, AGING_THRESHOLD, "HYBRID");
+        struct Result r_selected;
+        if (strcmp(algorithm, "FCFS") == 0) {
+            r_selected = fcfs_scheduler(temp, n);
+            print_json_output(temp, n, &r_selected, 0, 0, "FCFS");
+        } else if (strcmp(algorithm, "SJF") == 0) {
+            r_selected = sjf_scheduler(temp, n);
+            print_json_output(temp, n, &r_selected, 0, 0, "SJF");
+        } else if (strcmp(algorithm, "PRIORITY") == 0) {
+            r_selected = priority_scheduler(temp, n);
+            print_json_output(temp, n, &r_selected, 0, 0, "PRIORITY");
+        } else if (strcmp(algorithm, "ROUND_ROBIN") == 0) {
+            r_selected = round_robin_scheduler(temp, n, time_quantum);
+            print_json_output(temp, n, &r_selected, time_quantum, 0, "ROUND_ROBIN");
+        } else {
+            // Default to Hybrid
+            r_selected = hybrid_scheduler(temp, n);
+            print_json_output(temp, n, &r_selected, 0, AGING_THRESHOLD, "HYBRID");
+        }
         return 0;
     }
+
+    r_h = hybrid_scheduler(temp, n);
 
     copy_processes(original, temp, n);
     r_f = fcfs_scheduler(temp, n);

@@ -3,7 +3,7 @@ const path = require('path');
 
 const ENGINE_PATH = process.env.SCHEDULER_ENGINE_PATH || path.resolve(__dirname, '../../../scheduler/scheduler_engine.exe');
 
-exports.runSimulation = (processes) => {
+exports.runSimulation = (processes, config) => {
     return new Promise((resolve, reject) => {
         let inputString = `${processes.length}\n`;
         const typeMap = { 'REAL_TIME': 1, 'INTERACTIVE': 2, 'BATCH': 3 };
@@ -12,7 +12,15 @@ exports.runSimulation = (processes) => {
             inputString += `${p.arrivalTime} ${p.burstTime} ${p.priority} ${typeMap[p.type]}\n`;
         }
 
-        const child = spawn(ENGINE_PATH, ['--json']);
+        const args = ['--json'];
+        if (config && config.algorithm) {
+            args.push('--algo', config.algorithm);
+        }
+        if (config && config.timeQuantum) {
+            args.push('--quantum', config.timeQuantum.toString());
+        }
+
+        const child = spawn(ENGINE_PATH, args);
         
         let stdoutData = '';
         let stderrData = '';

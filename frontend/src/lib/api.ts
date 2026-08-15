@@ -15,13 +15,13 @@ export const api = {
     return res.json();
   },
 
-  async simulate(processes: ProcessInput[]): Promise<SimulationResult> {
+  async simulate(processes: ProcessInput[], simulation?: any): Promise<SimulationResult> {
     const res = await fetch(`${API_URL}/simulate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ processes }),
+      body: JSON.stringify({ processes, simulation }),
     });
 
     if (!res.ok) {
