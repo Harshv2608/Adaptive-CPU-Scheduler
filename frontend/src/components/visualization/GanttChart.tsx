@@ -1,6 +1,6 @@
 import React from 'react';
 import { GanttSegment } from '@/lib/simulation-utils';
-import { ProcessInput, SimulationEvent, ProcessType } from '@/lib/types';
+import { ProcessInput, SimulationEvent, ProcessType, ProcessMetrics } from '@/lib/types';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
@@ -8,10 +8,11 @@ interface Props {
   segments: GanttSegment[];
   processes: ProcessInput[];
   events: SimulationEvent[];
+  metrics?: ProcessMetrics[];
   totalTime: number;
 }
 
-export const GanttChart = ({ segments, processes, events, totalTime }: Props) => {
+export const GanttChart = ({ segments, processes, events, metrics, totalTime }: Props) => {
   const getProcessTypeAtTime = (pid: number, time: number): ProcessType => {
     let currentClass = processes.find(p => p.id === pid)?.type || 'INTERACTIVE';
     for (const e of events) {
@@ -48,8 +49,19 @@ export const GanttChart = ({ segments, processes, events, totalTime }: Props) =>
               'bg-[var(--color-process-batch)]/80 hover:bg-[var(--color-process-batch)]';
             
             const widthPct = (seg.duration / totalTime) * 100;
+            const useNativeTitle = segments.length > 250;
 
             if (seg.processId === 0) {
+              if (useNativeTitle) {
+                return (
+                  <div 
+                    key={idx}
+                    title={`System Idle: ${seg.start} -> ${seg.end}`}
+                    style={{ width: `${widthPct}%` }}
+                    className={`h-full border-r last:border-r-0 ${colorClass} flex items-center justify-center transition-colors cursor-help`}
+                  />
+                );
+              }
               return (
                 <Tooltip key={idx}>
                   <TooltipTrigger>
@@ -71,15 +83,28 @@ export const GanttChart = ({ segments, processes, events, totalTime }: Props) =>
               );
             }
 
+            const metric = metrics?.find(m => m.processId === seg.processId);
+            // Count preemptions up to this segment
+            const preemptions = segments.slice(0, idx).filter(s => s.processId === seg.processId).length;
+
+            const blockContent = (
+              <div 
+                style={{ width: `${widthPct}%` }}
+                className={`h-full border-r last:border-r-0 border-background ${colorClass} flex items-center justify-center transition-colors cursor-pointer text-primary-foreground font-bold`}
+                title={useNativeTitle ? `P${seg.processId} | Class: ${pType} | Start: ${seg.start} End: ${seg.end}` : undefined}
+              >
+                {widthPct > 2 && `P${seg.processId}`}
+              </div>
+            );
+
+            if (useNativeTitle) {
+              return React.cloneElement(blockContent, { key: idx });
+            }
+
             return (
               <Popover key={idx}>
                 <PopoverTrigger>
-                  <div 
-                    style={{ width: `${widthPct}%` }}
-                    className={`h-full border-r last:border-r-0 border-background ${colorClass} flex items-center justify-center transition-colors cursor-pointer text-primary-foreground font-bold`}
-                  >
-                    {widthPct > 2 && `P${seg.processId}`}
-                  </div>
+                  {blockContent}
                 </PopoverTrigger>
                 <PopoverContent className="w-64">
                   <div className="space-y-2">
@@ -97,8 +122,21 @@ export const GanttChart = ({ segments, processes, events, totalTime }: Props) =>
                       <span className="text-muted-foreground">Priority:</span>
                       <span className="text-right">{process?.priority}</span>
                       
+                      {metric && (
+                        <>
+                          <div className="col-span-2 border-t my-1"></div>
+                          <span className="text-muted-foreground">Waiting Time:</span>
+                          <span className="text-right">{metric.waitingTime}</span>
+                          <span className="text-muted-foreground">Turnaround Time:</span>
+                          <span className="text-right">{metric.turnaroundTime}</span>
+                        </>
+                      )}
+
                       <div className="col-span-2 border-t my-1"></div>
                       
+                      <span className="text-muted-foreground">Preemptions:</span>
+                      <span className="text-right">{preemptions}</span>
+
                       <span className="text-muted-foreground">Start Time:</span>
                       <span className="text-right">{seg.start}</span>
                       

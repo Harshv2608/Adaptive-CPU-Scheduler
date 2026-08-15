@@ -59,5 +59,34 @@ export function usePlayback(maxTime: number) {
     };
   }, [isPlaying, step]);
 
-  return { time, isPlaying, speed, setSpeed, togglePlayback, restart, jumpTo };
+  const stepForward = useCallback(() => {
+    setTime(prev => Math.min(prev + 1, maxTime));
+  }, [maxTime]);
+
+  const stepBackward = useCallback(() => {
+    setTime(prev => Math.max(prev - 1, 0));
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlayback();
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        stepForward();
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        stepBackward();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [togglePlayback, stepForward, stepBackward]);
+
+  return { time, isPlaying, speed, setSpeed, togglePlayback, restart, jumpTo, stepForward, stepBackward };
 }

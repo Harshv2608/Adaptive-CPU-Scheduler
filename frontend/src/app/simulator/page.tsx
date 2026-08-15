@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SimulationConfigPanel } from "@/components/simulator/SimulationConfigPanel";
 import { WorkloadPresets, WORKLOAD_PRESETS } from "@/components/simulator/WorkloadPresets";
+import { WorkloadBuilder } from "@/components/simulator/WorkloadBuilder";
 import { ProcessTable } from "@/components/simulator/ProcessTable";
 import { SimulationControls } from "@/components/simulator/SimulationControls";
 import { SimulationPlayback } from "@/components/visualization/SimulationPlayback";
@@ -22,13 +23,40 @@ export default function SimulatorPage() {
     JSON.parse(JSON.stringify(WORKLOAD_PRESETS.balanced))
   );
 
+  React.useEffect(() => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const stateParam = urlParams.get('state');
+      if (stateParam) {
+        const decoded = JSON.parse(atob(stateParam));
+        if (decoded.config) setConfig(decoded.config);
+        if (decoded.processes) setProcesses(decoded.processes);
+      }
+    } catch (err) {
+      console.error("Failed to parse state from URL", err);
+    }
+  }, []);
+
+  const handleShare = () => {
+    try {
+      const encoded = btoa(JSON.stringify({ config, processes }));
+      const url = new URL(window.location.href);
+      url.searchParams.set('state', encoded);
+      window.history.replaceState({}, '', url.toString());
+      navigator.clipboard.writeText(url.toString());
+      alert("Simulation URL copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to encode state", err);
+    }
+  };
+
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [isSimulating, setIsSimulating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const validate = (): string | null => {
     if (processes.length === 0) return "Please add at least one process.";
-    if (processes.length > 10) return "Maximum 10 processes allowed.";
+    if (processes.length > 500) return "Maximum 500 processes allowed.";
     for (const p of processes) {
       if (p.burstTime <= 0) return `Process P${p.id} must have Burst Time > 0.`;
       if (p.arrivalTime < 0) return `Process P${p.id} cannot have negative Arrival Time.`;
@@ -89,6 +117,8 @@ export default function SimulatorPage() {
         <div className={`space-y-6 ${result ? "hidden" : "pb-8"}`}>
           <SimulationConfigPanel config={config} setConfig={setConfig} disabled={isSimulating} />
           
+          <WorkloadBuilder onGenerate={setProcesses} disabled={isSimulating} />
+          
           <ProcessTable processes={processes} setProcesses={setProcesses} disabled={isSimulating} />
         </div>
         
@@ -105,6 +135,7 @@ export default function SimulatorPage() {
         <SimulationControls 
           onRun={handleRun} 
           onReset={handleReset} 
+          onShare={handleShare}
           isSimulating={isSimulating} 
         />
       )}

@@ -10,7 +10,8 @@ import { ProcessMetricsTable } from './ProcessMetricsTable';
 import { SchedulerDecisionPanel } from './SchedulerDecisionPanel';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, RotateCcw } from 'lucide-react';
+import { Play, Pause, RotateCcw, Download } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface Props {
   result: SimulationResult;
@@ -19,7 +20,7 @@ interface Props {
 
 export const SimulationPlayback = ({ result, processes }: Props) => {
   const totalTime = result.simulation.totalTime;
-  const { time, isPlaying, speed, setSpeed, togglePlayback, restart, jumpTo } = usePlayback(totalTime);
+  const { time, isPlaying, speed, setSpeed, togglePlayback, restart, jumpTo, stepForward, stepBackward } = usePlayback(totalTime);
 
   const segments = useMemo(() => compressTimeline(result.timeline), [result.timeline]);
   
@@ -40,17 +41,65 @@ export const SimulationPlayback = ({ result, processes }: Props) => {
   const visibleEvents = useMemo(() => result.events.filter(e => e.time <= time), [result.events, time]);
   const eventsAtTime = useMemo(() => getEventsAtTime(result.events, time), [result.events, time]);
 
+  const handleExportJSON = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", `schedx-simulation-${result.simulation.algorithm}.json`);
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+
+  const handleExportCSV = () => {
+    // PID,Arrival,Burst,Priority,Type,Start,Completion,Waiting,Turnaround
+    const headers = ["PID", "Arrival", "Burst", "Priority", "Type", "Completion", "Waiting", "Turnaround", "Response", "Preemptions"];
+    
+    const rows = result.processMetrics.map(pm => {
+      const p = processes.find(p => p.id === pm.processId);
+      // count preemptions up to completion
+      const preemptions = result.timeline.filter(t => t.processId === pm.processId).length - 1;
+      
+      return [
+        pm.processId,
+        p?.arrivalTime || 0,
+        p?.burstTime || 0,
+        p?.priority || 0,
+        p?.type || '',
+        pm.completionTime,
+        pm.waitingTime,
+        pm.turnaroundTime,
+        pm.responseTime,
+        Math.max(0, preemptions)
+      ].join(',');
+    });
+    
+    const csvContent = "data:text/csv;charset=utf-8," + headers.join(',') + "\n" + rows.join('\n');
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", encodeURI(csvContent));
+    downloadAnchorNode.setAttribute("download", `schedx-metrics-${result.simulation.algorithm}.csv`);
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
       {/* Playback Controls */}
       <div className="bg-card border rounded-lg p-4 flex flex-col md:flex-row items-center gap-6 sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center gap-2 shrink-0">
-          <Button variant="outline" size="icon" onClick={restart}>
+        <div className="flex items-center gap-1 shrink-0">
+          <Button variant="outline" size="icon" onClick={restart} title="Restart">
             <RotateCcw className="w-4 h-4" />
           </Button>
-          <Button size="icon" onClick={togglePlayback} className={isPlaying ? "bg-amber-500 hover:bg-amber-600 text-black" : ""}>
+          <Button variant="outline" size="icon" onClick={stepBackward} disabled={time <= 0} title="Step Backward (Left Arrow)">
+            <span className="font-bold">&lt;</span>
+          </Button>
+          <Button size="icon" onClick={togglePlayback} className={isPlaying ? "bg-amber-500 hover:bg-amber-600 text-black" : ""} title="Play/Pause (Space)">
             {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
+          </Button>
+          <Button variant="outline" size="icon" onClick={stepForward} disabled={time >= totalTime} title="Step Forward (Right Arrow)">
+            <span className="font-bold">&gt;</span>
           </Button>
         </div>
         
@@ -66,8 +115,8 @@ export const SimulationPlayback = ({ result, processes }: Props) => {
           <span className="text-sm font-medium w-12">{totalTime}</span>
         </div>
 
-        <div className="flex items-center gap-1 shrink-0 bg-muted rounded-md p-1">
-          {[0.5, 1, 2, 4].map(s => (
+        <div className="flex items-center gap-1 shrink-0 bg-muted rounded-md p-1 mr-2">
+          {[0.25, 0.5, 1, 2, 4, 8].map(s => (
             <button
               key={s}
               onClick={() => setSpeed(s)}
@@ -77,6 +126,16 @@ export const SimulationPlayback = ({ result, processes }: Props) => {
             </button>
           ))}
         </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 w-10" title="Export Results">
+            <Download className="w-4 h-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={handleExportJSON}>Export JSON Trace</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportCSV}>Export Metrics (CSV)</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Visualizer Area */}
@@ -99,7 +158,7 @@ export const SimulationPlayback = ({ result, processes }: Props) => {
         </div>
       </div>
 
-      <GanttChart segments={segments as any} processes={processes} events={result.events} totalTime={totalTime} />
+      <GanttChart segments={segments as any} processes={processes} events={result.events} metrics={result.processMetrics} totalTime={totalTime} />
 
       <ProcessMetricsTable result={result} processes={processes} />
     </div>
