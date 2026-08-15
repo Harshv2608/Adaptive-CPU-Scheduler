@@ -21,7 +21,7 @@ struct Result {
     struct Trace trace;
 };
 
-struct Result hybrid_scheduler(struct Process p[], int n);
+struct Result hybrid_scheduler(struct Process p[], int n, int aging_threshold);
 struct Result fcfs_scheduler(struct Process p[], int n);
 struct Result sjf_scheduler(struct Process p[], int n);
 struct Result priority_scheduler(struct Process p[], int n);

@@ -19,7 +19,7 @@ static int get_adaptive_quantum(int interactive_count) {
     return 4; // 1-2 interactive processes
 }
 
-struct Result hybrid_scheduler(struct Process p[], int n) {
+struct Result hybrid_scheduler(struct Process p[], int n, int aging_threshold) {
     int current_time = 0, completed = 0, last_interactive = -1;
     int busy_time = 0;
     float total_wt = 0, total_tat = 0, total_rt = 0;
@@ -52,18 +52,18 @@ struct Result hybrid_scheduler(struct Process p[], int n) {
         for (int i = 0; i < n; i++) {
             if (p[i].arrival_time <= current_time && p[i].remaining_time > 0 && i != running_idx) {
                 p[i].wait_time_in_class++;
-                if (p[i].wait_time_in_class >= AGING_THRESHOLD) {
+                if (p[i].wait_time_in_class >= aging_threshold) {
                     int from = p[i].current_class;
                     if (p[i].current_class == BATCH) {
                         p[i].current_class = INTERACTIVE;
                         p[i].promotions++;
                         p[i].wait_time_in_class = 0;
-                        record_event(&r.trace, current_time, EVENT_AGING, p[i].pid, from, INTERACTIVE, AGING_THRESHOLD, 0, "Promoted to Interactive");
+                        record_event(&r.trace, current_time, EVENT_AGING, p[i].pid, from, INTERACTIVE, aging_threshold, 0, "Promoted to Interactive");
                     } else if (p[i].current_class == INTERACTIVE) {
                         p[i].current_class = REAL_TIME;
                         p[i].promotions++;
                         p[i].wait_time_in_class = 0;
-                        record_event(&r.trace, current_time, EVENT_AGING, p[i].pid, from, REAL_TIME, AGING_THRESHOLD, 0, "Promoted to Real-Time");
+                        record_event(&r.trace, current_time, EVENT_AGING, p[i].pid, from, REAL_TIME, aging_threshold, 0, "Promoted to Real-Time");
                     }
                 }
             }

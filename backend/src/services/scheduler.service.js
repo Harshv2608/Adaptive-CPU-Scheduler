@@ -19,6 +19,9 @@ exports.runSimulation = (processes, config) => {
         if (config && config.timeQuantum) {
             args.push('--quantum', config.timeQuantum.toString());
         }
+        if (config && config.agingThreshold) {
+            args.push('--aging', config.agingThreshold.toString());
+        }
 
         const child = spawn(ENGINE_PATH, args);
         

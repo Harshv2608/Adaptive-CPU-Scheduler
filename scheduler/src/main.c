@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
     int json_mode = 0;
     char algorithm[20] = "HYBRID";
     int time_quantum = 2; // Default for RR
+    int aging_threshold = AGING_THRESHOLD; // Default for HYBRID
     
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--json") == 0) {
@@ -53,6 +54,10 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--quantum") == 0 && i + 1 < argc) {
             time_quantum = atoi(argv[i+1]);
             if (time_quantum <= 0) time_quantum = 2;
+            i++;
+        } else if (strcmp(argv[i], "--aging") == 0 && i + 1 < argc) {
+            aging_threshold = atoi(argv[i+1]);
+            if (aging_threshold <= 0) aging_threshold = AGING_THRESHOLD;
             i++;
         }
     }
@@ -123,13 +128,13 @@ int main(int argc, char *argv[]) {
             print_json_output(temp, n, &r_selected, time_quantum, 0, "ROUND_ROBIN");
         } else {
             // Default to Hybrid
-            r_selected = hybrid_scheduler(temp, n);
-            print_json_output(temp, n, &r_selected, 0, AGING_THRESHOLD, "HYBRID");
+            r_selected = hybrid_scheduler(temp, n, aging_threshold);
+            print_json_output(temp, n, &r_selected, 0, aging_threshold, "HYBRID");
         }
         return 0;
     }
 
-    r_h = hybrid_scheduler(temp, n);
+    r_h = hybrid_scheduler(temp, n, aging_threshold);
 
     copy_processes(original, temp, n);
     r_f = fcfs_scheduler(temp, n);
