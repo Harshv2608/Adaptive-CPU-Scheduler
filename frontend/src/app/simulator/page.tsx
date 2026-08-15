@@ -6,7 +6,7 @@ import { SimulationConfigPanel } from "@/components/simulator/SimulationConfigPa
 import { WorkloadPresets, WORKLOAD_PRESETS } from "@/components/simulator/WorkloadPresets";
 import { ProcessTable } from "@/components/simulator/ProcessTable";
 import { SimulationControls } from "@/components/simulator/SimulationControls";
-import { BasicResultSummary } from "@/components/simulator/BasicResultSummary";
+import { SimulationPlayback } from "@/components/visualization/SimulationPlayback";
 import { ProcessInput, SimulationConfig, SimulationResult } from "@/lib/types";
 import { api } from "@/lib/api";
 
@@ -67,7 +67,8 @@ export default function SimulatorPage() {
   return (
     <div className="flex flex-col h-full">
       <PageContainer>
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div className={`flex flex-col h-full ${result ? "pb-0" : ""}`}>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-bold mb-1">Simulator</h1>
             <p className="text-muted-foreground">Build a workload and run the CPU scheduling simulation.</p>
@@ -81,20 +82,28 @@ export default function SimulatorPage() {
           </div>
         )}
 
-        <div className="space-y-6 pb-8">
+        <div className={`space-y-6 ${result ? "hidden" : "pb-8"}`}>
           <SimulationConfigPanel config={config} setConfig={setConfig} disabled={isSimulating} />
           
           <ProcessTable processes={processes} setProcesses={setProcesses} disabled={isSimulating} />
-          
-          <BasicResultSummary result={result} />
+        </div>
+        
+        {result && (
+          <div className="mt-8 pb-8 border-t pt-8">
+            <h2 className="text-2xl font-bold mb-6">Simulation Results</h2>
+            <SimulationPlayback result={result} processes={processes} />
+          </div>
+        )}
         </div>
       </PageContainer>
       
-      <SimulationControls 
-        onRun={handleRun} 
-        onReset={handleReset} 
-        isSimulating={isSimulating} 
-      />
+      {!result && (
+        <SimulationControls 
+          onRun={handleRun} 
+          onReset={handleReset} 
+          isSimulating={isSimulating} 
+        />
+      )}
     </div>
   );
 }
