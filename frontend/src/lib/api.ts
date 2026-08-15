@@ -1,4 +1,4 @@
-import { ProcessInput, SimulationResult, AlgorithmMetadata } from './types';
+import { ProcessInput, SimulationResult, SimulationConfig, AlgorithmMetadata, ComparisonResult } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
@@ -15,20 +15,33 @@ export const api = {
     return res.json();
   },
 
-  async simulate(processes: ProcessInput[], simulation?: any): Promise<SimulationResult> {
+  async simulate(processes: ProcessInput[], config: SimulationConfig): Promise<SimulationResult> {
     const res = await fetch(`${API_URL}/simulate`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ processes, simulation }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ processes, simulation: config })
     });
-
+    
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Failed to run simulation');
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to simulate');
     }
+    
+    return res.json();
+  },
 
+  async compare(processes: ProcessInput[], config: SimulationConfig): Promise<ComparisonResult> {
+    const res = await fetch(`${API_URL}/compare`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ processes, config })
+    });
+    
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to compare');
+    }
+    
     return res.json();
   }
 };

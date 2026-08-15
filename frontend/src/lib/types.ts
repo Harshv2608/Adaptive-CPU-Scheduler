@@ -66,3 +66,8 @@ export interface AlgorithmMetadata {
   name: string;
   preemptive: boolean;
 }
+
+export interface ComparisonResult {
+  workload: ProcessInput[];
+  results: Record<AlgorithmType, SimulationResult>;
+}

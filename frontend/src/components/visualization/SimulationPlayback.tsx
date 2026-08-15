@@ -7,6 +7,7 @@ import { ReadyQueue } from './ReadyQueue';
 import { GanttChart } from './GanttChart';
 import { EventTimeline } from './EventTimeline';
 import { ProcessMetricsTable } from './ProcessMetricsTable';
+import { SchedulerDecisionPanel } from './SchedulerDecisionPanel';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, RotateCcw } from 'lucide-react';
@@ -37,6 +38,7 @@ export const SimulationPlayback = ({ result, processes }: Props) => {
   
   // Show all events up to the current playback time
   const visibleEvents = useMemo(() => result.events.filter(e => e.time <= time), [result.events, time]);
+  const eventsAtTime = useMemo(() => getEventsAtTime(result.events, time), [result.events, time]);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -78,13 +80,22 @@ export const SimulationPlayback = ({ result, processes }: Props) => {
       </div>
 
       {/* Visualizer Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 h-full">
         <div className="col-span-1 flex flex-col gap-6">
           <CpuPanel activePid={currentCpuPid} process={currentCpuProcess} currentClass={cpuProcessState?.currentClass} />
           <ReadyQueue queue={queue} />
         </div>
-        <div className="col-span-1 lg:col-span-2">
+        <div className="col-span-1 lg:col-span-1">
           <EventTimeline events={visibleEvents} />
+        </div>
+        {/* Third Column: Scheduler Decision Panel */}
+        <div className="lg:col-span-1">
+          <SchedulerDecisionPanel 
+            time={time} 
+            currentProcess={currentCpuProcess} 
+            eventsAtTime={eventsAtTime} 
+            processes={processes} 
+          />
         </div>
       </div>
 
