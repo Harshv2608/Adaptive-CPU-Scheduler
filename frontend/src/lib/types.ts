@@ -42,6 +42,7 @@ export interface SimulationMetrics {
   averageTurnaroundTime: number;
   averageResponseTime: number;
   cpuUtilization: number;
+  contextSwitches: number;
 }
 
 export interface ProcessMetrics {

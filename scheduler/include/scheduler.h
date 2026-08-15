@@ -12,6 +12,7 @@ struct Result {
     float avg_tat;
     float avg_rt;
     float cpu_util;
+    int context_switches;
     
     // For outputting timeline
     int timeline[MAX_TIME];

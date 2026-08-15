@@ -123,7 +123,8 @@ void print_json_output(struct Process processes[], int n, struct Result *r, int 
     printf("    \"averageWaitingTime\": %.2f,\n", r->avg_wt);
     printf("    \"averageTurnaroundTime\": %.2f,\n", r->avg_tat);
     printf("    \"averageResponseTime\": %.2f,\n", r->avg_rt);
-    printf("    \"cpuUtilization\": %.2f\n", r->cpu_util);
+    printf("    \"cpuUtilization\": %.2f,\n", r->cpu_util);
+    printf("    \"contextSwitches\": %d\n", r->context_switches);
     printf("  },\n");
 
     // Process metrics

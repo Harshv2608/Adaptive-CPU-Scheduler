@@ -1,8 +1,14 @@
 const { validateSimulationRequest } = require('../validators/simulation.validator');
 const schedulerService = require('../services/scheduler.service');
+const { validateTrace } = require('../utils/validator');
 
 exports.health = (req, res) => {
-    res.status(200).json({ status: 'OK' });
+    const isEngineReady = schedulerService.checkEngineHealth();
+    if (isEngineReady) {
+        res.status(200).json({ status: 'OK', engine: 'ready' });
+    } else {
+        res.status(503).json({ status: 'ERROR', engine: 'not_found' });
+    }
 };
 
 exports.getAlgorithms = (req, res) => {
@@ -30,6 +36,7 @@ exports.simulate = async (req, res) => {
 
     try {
         const result = await schedulerService.runSimulation(processes, simulation);
+        validateTrace(result);
         res.status(200).json(result);
     } catch (error) {
         if (error.code === 'TIMEOUT') {
@@ -62,6 +69,7 @@ exports.compare = async (req, res) => {
         
         const results = {};
         algorithms.forEach((algo, idx) => {
+            validateTrace(resultsArray[idx]);
             results[algo] = resultsArray[idx];
         });
         

@@ -2,7 +2,7 @@
 #include "../include/scheduler.h"
 
 struct Result round_robin_scheduler(struct Process p[], int n, int quantum) {
-    int time = 0, completed = 0, busy_time = 0;
+    int time = 0, completed = 0, busy_time = 0, context_switches = 0;
     float total_wt = 0, total_tat = 0, total_rt = 0;
     struct Result r;
     init_trace(&r.trace);
@@ -40,6 +40,7 @@ struct Result round_robin_scheduler(struct Process p[], int n, int quantum) {
             p[idx].started = 1;
         }
         
+        context_switches++;
         record_event(&r.trace, time, EVENT_DISPATCH, p[idx].pid, 0, 0, 0, quantum, "RR turn");
         
         int slice = (p[idx].remaining_time < quantum) ? p[idx].remaining_time : quantum;
@@ -75,5 +76,6 @@ struct Result round_robin_scheduler(struct Process p[], int n, int quantum) {
     r.avg_tat = total_tat / n;
     r.avg_rt = total_rt / n;
     r.cpu_util = (time > 0) ? ((float)busy_time / time) * 100 : 0.0;
+    r.context_switches = context_switches;
     return r;
 }

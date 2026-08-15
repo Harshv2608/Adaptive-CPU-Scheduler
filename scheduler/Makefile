@@ -18,5 +18,11 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 $(OBJ_DIR):
 	mkdir $(OBJ_DIR)
 
+asan: CFLAGS += -fsanitize=address,undefined -g
+asan: clean $(TARGET)
+
+test: $(TARGET)
+	python -m unittest discover tests
+
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET) $(TARGET).exe

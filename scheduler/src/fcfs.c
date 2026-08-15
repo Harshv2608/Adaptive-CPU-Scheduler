@@ -2,41 +2,83 @@
 #include "../include/scheduler.h"
 
 struct Result fcfs_scheduler(struct Process p[], int n) {
-    int time = 0;
-    float total_wt = 0, total_tat = 0;
+    int time = 0, completed = 0, busy_time = 0, context_switches = 0;
+    float total_wt = 0, total_tat = 0, total_rt = 0;
     struct Result r;
     init_trace(&r.trace);
     r.total_time = 0;
+    int running_idx = -1;
 
-    for (int i = 0; i < n; i++) {
-        if (time < p[i].arrival_time) {
-            time = p[i].arrival_time;
+    while (completed < n) {
+        for (int i = 0; i < n; i++) {
+            if (p[i].arrival_time == time) {
+                record_event(&r.trace, time, EVENT_ARRIVAL, p[i].pid, 0, 0, 0, 0, "Arrived");
+            }
         }
 
-        if (!p[i].started) {
-            p[i].response_time = time - p[i].arrival_time;
-            p[i].started = 1;
+        int idx = running_idx;
+        if (idx == -1) {
+            // Find the earliest arrived process that is not completed
+            int earliest_arrival = 9999;
+            for (int i = 0; i < n; i++) {
+                if (p[i].arrival_time <= time && p[i].remaining_time > 0) {
+                    if (p[i].arrival_time < earliest_arrival) {
+                        earliest_arrival = p[i].arrival_time;
+                        idx = i;
+                    } else if (p[i].arrival_time == earliest_arrival && idx == -1) {
+                         idx = i;
+                    }
+                }
+            }
         }
 
-        record_event(&r.trace, time, EVENT_DISPATCH, p[i].pid, 0, 0, 0, 0, "FCFS Dispatch");
+        if (idx != running_idx) {
+            if (running_idx != -1 && p[running_idx].remaining_time > 0) {
+                record_event(&r.trace, time, EVENT_PREEMPTION, p[running_idx].pid, 0, 0, 0, 0, "Preempted"); // Should not happen in FCFS
+            }
+            if (idx != -1) {
+                context_switches++;
+                record_event(&r.trace, time, EVENT_DISPATCH, p[idx].pid, 0, 0, 0, 0, "FCFS Dispatch");
+                if (!p[idx].started) {
+                    p[idx].response_time = time - p[idx].arrival_time;
+                    p[idx].started = 1;
+                }
+            } else {
+                if (r.trace.event_count == 0 || r.trace.events[r.trace.event_count - 1].type != EVENT_IDLE) {
+                    record_event(&r.trace, time, EVENT_IDLE, 0, 0, 0, 0, 0, "Idle");
+                }
+            }
+            running_idx = idx;
+        }
 
-        for (int t = 0; t < p[i].burst_time; t++) {
-            if (r.total_time < MAX_TIME) r.timeline[r.total_time++] = p[i].pid;
+        if (running_idx != -1) {
+            p[running_idx].remaining_time--;
+            busy_time++;
+            if (r.total_time < MAX_TIME) r.timeline[r.total_time++] = p[running_idx].pid;
+            time++;
+
+            if (p[running_idx].remaining_time == 0) {
+                completed++;
+                p[running_idx].completion_time = time;
+                p[running_idx].turnaround_time = time - p[running_idx].arrival_time;
+                p[running_idx].waiting_time = p[running_idx].turnaround_time - p[running_idx].burst_time;
+                record_event(&r.trace, time, EVENT_COMPLETION, p[running_idx].pid, 0, 0, 0, 0, "Completed");
+                
+                total_wt += p[running_idx].waiting_time;
+                total_tat += p[running_idx].turnaround_time;
+                total_rt += p[running_idx].response_time;
+                running_idx = -1;
+            }
+        } else {
+            if (r.total_time < MAX_TIME) r.timeline[r.total_time++] = 0;
             time++;
         }
-
-        p[i].completion_time = time;
-        p[i].turnaround_time = p[i].completion_time - p[i].arrival_time;
-        p[i].waiting_time = p[i].turnaround_time - p[i].burst_time;
-        
-        record_event(&r.trace, time, EVENT_COMPLETION, p[i].pid, 0, 0, 0, 0, "Completed");
-
-        total_wt += p[i].waiting_time;
-        total_tat += p[i].turnaround_time;
     }
-
+    
     r.avg_wt = total_wt / n;
     r.avg_tat = total_tat / n;
-    r.cpu_util = 100.0;
+    r.avg_rt = total_rt / n;
+    r.cpu_util = (time > 0) ? ((float)busy_time / time) * 100 : 0.0;
+    r.context_switches = context_switches;
     return r;
 }

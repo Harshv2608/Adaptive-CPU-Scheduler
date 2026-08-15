@@ -21,7 +21,7 @@ static int get_adaptive_quantum(int interactive_count) {
 
 struct Result hybrid_scheduler(struct Process p[], int n, int aging_threshold) {
     int current_time = 0, completed = 0, last_interactive = -1;
-    int busy_time = 0;
+    int busy_time = 0, context_switches = 0;
     float total_wt = 0, total_tat = 0, total_rt = 0;
     
     struct Result r;
@@ -134,6 +134,7 @@ struct Result hybrid_scheduler(struct Process p[], int n, int aging_threshold) {
                 }
             }
             if (next_idx != -1) {
+                context_switches++;
                 int quantum = (p[next_idx].current_class == INTERACTIVE) ? current_quantum : 0;
                 char reason[100];
                 if (p[next_idx].current_class == REAL_TIME) sprintf(reason, "RT Priority %d", p[next_idx].priority);
@@ -193,6 +194,7 @@ struct Result hybrid_scheduler(struct Process p[], int n, int aging_threshold) {
     r.avg_tat = total_tat / n;
     r.avg_rt = total_rt / n;
     r.cpu_util = ((float)busy_time / current_time) * 100;
+    r.context_switches = context_switches;
     
     return r;
 }

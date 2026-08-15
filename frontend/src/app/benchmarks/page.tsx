@@ -42,6 +42,7 @@ export default function BenchmarksPage() {
   });
   const [isComparing, setIsComparing] = useState(false);
   const [result, setResult] = useState<ComparisonResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const applyPreset = (presetId: string) => {
     let newProcs: ProcessInput[] = [];
@@ -93,9 +94,9 @@ export default function BenchmarksPage() {
     try {
       const res = await api.compare(processes, config);
       setResult(res);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Comparison failed.');
+      setError(err.message || "Comparison failed. Backend might be offline.");
     } finally {
       setIsComparing(false);
     }
@@ -109,6 +110,16 @@ export default function BenchmarksPage() {
           <p className="text-muted-foreground">Compare algorithm performance on the identical workload.</p>
         </div>
       </div>
+
+      {error && (
+        <div className="bg-destructive/10 text-destructive border border-destructive/20 rounded-md p-4 mb-6 flex items-center gap-3 shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+          <div>
+            <span className="font-semibold block">Benchmark failed</span>
+            <span className="text-sm opacity-90">{error}</span>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-6">

@@ -77,8 +77,12 @@ export default function SimulatorPage() {
         </div>
         
         {error && (
-          <div className="bg-destructive/10 text-destructive border border-destructive/20 rounded-md p-4 mb-6 flex items-center gap-2">
-            <span className="font-semibold">⚠ Simulation failed:</span> {error}
+          <div className="bg-destructive/10 text-destructive border border-destructive/20 rounded-md p-4 mb-6 flex items-center gap-3 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+            <div>
+              <span className="font-semibold block">Simulation failed</span>
+              <span className="text-sm opacity-90">{error}</span>
+            </div>
           </div>
         )}
 

@@ -1,0 +1,16 @@
+{
+  "simulation": {
+    "algorithm": "HYBRID",
+    "timeQuantum": 2,
+    "agingThreshold": 5
+  },
+  "processes": [
+    {
+      "id": 1,
+      "arrivalTime": 0,
+      "burstTime": 5,
+      "priority": 1,
+      "type": "BATCH"
+    }
+  ]
+}

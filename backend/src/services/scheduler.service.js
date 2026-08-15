@@ -1,7 +1,13 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
-const ENGINE_PATH = process.env.SCHEDULER_ENGINE_PATH || path.resolve(__dirname, '../../../scheduler/scheduler_engine.exe');
+const ENGINE_EXECUTABLE = process.platform === 'win32' ? 'scheduler_engine.exe' : 'scheduler_engine';
+const ENGINE_PATH = process.env.SCHEDULER_ENGINE_PATH || path.resolve(__dirname, `../../../scheduler/${ENGINE_EXECUTABLE}`);
+
+exports.checkEngineHealth = () => {
+    const fs = require('fs');
+    return fs.existsSync(ENGINE_PATH);
+};
 
 exports.runSimulation = (processes, config) => {
     return new Promise((resolve, reject) => {
