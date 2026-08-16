@@ -43,6 +43,10 @@ jobs:
         working-directory: ./backend
         run: npm ci
 
+      - name: Compile C Engine
+        working-directory: ./scheduler
+        run: make
+
       - name: Run Jest Tests
         working-directory: ./backend
         run: npm test
