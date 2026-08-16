@@ -46,7 +46,7 @@ export const SchedulerDecisionPanel = ({ time, currentProcess, eventsAtTime, pro
 
         <div className="flex justify-between items-center border-b pb-2">
           <span className="text-sm text-muted-foreground">Class</span>
-          <span className="font-bold">{currentProcess ? currentProcess.type.replace('_', '-') : '-'}</span>
+          <span className="font-bold">{currentProcess ? currentProcess.type?.replace('_', '-') : '-'}</span>
         </div>
 
         <div className="flex justify-between items-center border-b pb-2">

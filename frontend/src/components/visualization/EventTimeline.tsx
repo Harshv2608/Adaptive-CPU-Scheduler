@@ -81,16 +81,18 @@ export const EventTimeline = ({ events }: Props) => {
                     )}
                   </div>
                   <div className="mt-1 font-medium">
-                    {e.type === 'PREEMPTION' && '⚡ PREEMPTION'}
-                    {e.type === 'AGING' && '🚀 AGING'}
-                    {e.type !== 'PREEMPTION' && e.type !== 'AGING' && e.type.replace('_', ' ')}
+                    <span className="font-semibold text-foreground">
+                      {e.type !== 'PREEMPTION' && e.type !== 'AGING' && e.type?.replace('_', ' ')}
+                      {e.type === 'PREEMPTION' && '⚡ PREEMPTED'}
+                      {e.type === 'AGING' && '🚀 AGING'}
+                    </span>
                   </div>
                   <div className="text-muted-foreground mt-1">
                     {e.reason}
                   </div>
-                  {e.type === 'AGING' && e.details?.fromType && e.details?.toType && (
-                    <div className="mt-1 text-xs px-2 py-1 bg-purple-500/10 text-purple-400 rounded border border-purple-500/20 inline-block">
-                      {e.details.fromType.replace('_', '-')} &rarr; {e.details.toType.replace('_', '-')}
+                  {e.type === 'AGING' && e.details && (
+                    <div className="mt-2 p-2 bg-primary/10 rounded border border-primary/20 text-xs">
+                      {e.details.fromType?.replace('_', '-')} &rarr; {e.details.toType?.replace('_', '-')}
                     </div>
                   )}
                 </div>

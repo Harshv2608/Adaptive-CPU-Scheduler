@@ -111,7 +111,7 @@ export const GanttChart = ({ segments, processes, events, metrics, totalTime }: 
                     <h4 className="font-bold border-b pb-2">Process P{seg.processId} Block</h4>
                     <div className="text-sm grid grid-cols-2 gap-y-1">
                       <span className="text-muted-foreground">Orig Class:</span>
-                      <span className="text-right">{process?.type.replace('_', '-')}</span>
+                      <span className="text-right">{process?.type?.replace('_', '-')}</span>
                       
                       <span className="text-muted-foreground">Exec Class:</span>
                       <span className="text-right font-medium">{pType?.replace('_', '-')}</span>
