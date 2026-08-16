@@ -30,7 +30,6 @@ export const ReadyQueue = ({ queue }: Props) => {
             queue.map((p) => (
               <motion.div
                 key={p.id}
-                layoutId={`process-${p.id}`}
                 layout
                 initial={{ opacity: 0, scale: 0.8, x: 20 }}
                 animate={{ opacity: 1, scale: 1, x: 0 }}
