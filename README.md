@@ -1,129 +1,136 @@
-# SchedX: Interactive CPU Scheduling Simulator
+📄 SchedX: Adaptive CPU Scheduler Platform
+SchedX is an enterprise-grade educational web application designed to visualize and simulate Operating System CPU scheduling algorithms. It demonstrates an end-to-end full-stack pipeline that transforms low-level C systems programming into highly interactive, real-time React visualizations using a robust Node.js API bridge.
 
-SchedX is a high-performance, interactive CPU Scheduling Simulator. At its core, it executes complex scheduling algorithms natively in C, validates mathematical invariants via a Node.js Express API, and visualizes the process execution trace in a modern Next.js dashboard. 
+🚀 Key Features
+📍 High-Performance Native Simulation Engine
+Uses a compiled C binary to execute complex scheduling mathematics natively.
+Simulates FCFS, SJF, Priority, Round Robin, and Adaptive Hybrid algorithms with zero UI blocking.
+🧠 Deterministic Adaptive Hybrid Scheduler
+Replaces standard generic algorithms with a custom Multi-Level Queue (MLQ) implementation.
+Evaluates processes based on Class: REAL-TIME (Preemptive), INTERACTIVE (Adaptive Round Robin), and BATCH (SRTF).
+Provides strict starvation prevention via dynamic Aging (promoting BATCH processes to INTERACTIVE over time).
+🛡️ Backend-Controlled Execution Pipeline
+Strict linear lifecycle: C decides → JSON records → React visualizes.
+Built with Node.js `child_process.spawn()` to guarantee secure, isolated execution of the C binary for every API request.
+🧪 Automated Math Invariant Assessment
+Deterministic Python test suite evaluates CPU utilization, turnaround times, and Gantt contiguity.
+Memory-safe C execution enforced via AddressSanitizer (ASan) to prevent buffer overflows on large JSON payloads.
+🔐 Secure Cross-Origin API
+Strict CORS policies lock down the Express API to the production Vercel domain.
+Payload size limitations enforce stability during massive 500-process stress tests.
 
-**[Live Demo](#) | [Documentation](#) | [Architecture](#)**
+🛠️ Tech Stack
+| Category | Technology |
+| --- | --- |
+| Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion |
+| Backend Engine | Node.js, Express.js, Jest |
+| Core Simulator | C (Native Executable) |
+| Testing | Python `unittest`, AddressSanitizer |
+| Deployment | Vercel (Frontend), Render (Backend API), Docker (Containerization) |
 
-*(Insert Landing Page Screenshot Here)*
-
-## Architecture Pipeline
-
-The application relies on a strict separation of concerns, enforcing the invariant that **C decides, JSON records, and React visualizes**.
-
+📂 Project Structure
 ```text
-  ┌─────────────────────────┐
-  │       Web Frontend      │
-  │                         │
-  │ React / Next.js         │
-  │ Interactive Dashboard   │
-  │ Gantt Visualization     │
-  │ Metrics & Charts        │
-  └───────────┬─────────────┘
-              │
-    HTTP JSON Trace Data
-              │
-  ┌───────────▼─────────────┐
-  │       Express API       │
-  │                         │
-  │ Node.js Backend         │
-  │ Trace Validation        │
-  │ Spawn/Exec Controller   │
-  └───────────┬─────────────┘
-              │
-    Standard I/O Data Pipes
-              │
-  ┌───────────▼─────────────┐
-  │       C Engine          │
-  │                         │
-  │ High-Performance        │
-  │ Core Simulation         │
-  │ Math Invariants         │
-  └─────────────────────────┘
+Adaptive-CPU-Scheduler/
+├── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── utils/
+│   ├── tests/
+│   └── server.js
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   ├── components/
+│   │   └── lib/
+│   ├── next.config.mjs
+│   └── tailwind.config.ts
+├── scheduler/
+│   ├── src/
+│   │   ├── algorithms/
+│   │   ├── main.c
+│   │   └── json.c
+│   ├── tests/
+│   └── Makefile
+├── Dockerfile
+└── README.md
 ```
 
-## Features
+⚙️ Installation
+1. Clone the Repository
+```bash
+git clone https://github.com/Harshv2608/Adaptive-CPU-Scheduler.git
+cd Adaptive-CPU-Scheduler
+```
 
-- **5 Scheduling Algorithms**: Supports `FCFS`, `SJF (Non-preemptive)`, `Priority (Preemptive)`, `Round Robin`, and `Adaptive Hybrid`.
-- **High Performance Core**: C engine execution handles massive scale (tested up to 1000 processes) without blocking the UI, executing natively.
-- **Explainable Decisions**: The real-time event log trace explains *why* processes were promoted, preempted, or aging inside the `Hybrid` algorithm.
-- **Comparison Engine**: Run `Benchmarks` to spawn 5 concurrent instances of the engine, analyzing all algorithms side-by-side using identically seeded workloads.
-- **Metrics**: Detailed tables for Turnaround Time, Waiting Time, Response Time, CPU Utilization, and Context Switches.
-
-*(Insert Simulator View Screenshot Here)*
-
-*(Insert Gantt Chart Screenshot Here)*
-
-## The Adaptive Hybrid Scheduler
-
-This project introduces a custom `HYBRID` scheduler combining Priority, Round Robin, and Shortest Remaining Time First (SRTF), governed by a robust **Aging** mechanism.
-
-### Queue Priorities
-1. **Real-Time Queue (High Priority)**: Executed strictly based on Priority (preemptive).
-2. **Interactive Queue (Medium Priority)**: Executed via Round Robin with an **Adaptive Quantum** based on system load.
-3. **Batch Queue (Low Priority)**: Executed via Shortest Remaining Time First (SRTF).
-
-### Advanced Mechanisms
-* **Aging Mechanism**: If a `BATCH` process starves (waiting time exceeds `Aging Threshold`), it is dynamically promoted to `INTERACTIVE`.
-* **Adaptive Quantum**: The `INTERACTIVE` queue scales its Round Robin quantum inversely proportional to the number of processes in the queue, ensuring low latency for many tasks.
-
-*(Insert Benchmarks Comparison Screenshot Here)*
-
-## Installation & Usage
-
-Requires `Node.js 18+`, `Python 3`, and `GCC`.
-
-### 1. Compile the C Engine
+2. C Engine Setup
+Requires GCC compiler. Compile the native engine:
 ```bash
 cd scheduler
 make
+cd ..
 ```
 
-### 2. Start the Backend API
+3. Backend Setup
+Open a new terminal:
 ```bash
 cd backend
 npm install
 npm run start
 ```
+The Express API will run on `http://localhost:3001`.
 
-### 3. Start the Next.js Frontend
+4. Frontend Setup
+Open a new terminal:
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+The application will automatically open in your browser at `http://localhost:3000`.
 
-Visit `http://localhost:3000` in your browser.
-
-## Deployment
-
-SchedX is production-ready via Docker. The backend containerizes the C compiler, builds the engine, and serves the Express API securely.
-
-```bash
-docker build -t schedx-backend .
-docker run -p 3001:3001 schedx-backend
-```
-The Next.js frontend can be seamlessly deployed on Vercel or any static host. Set `NEXT_PUBLIC_API_URL` to point to the backend instance.
-
-## Testing and CI/CD
-
-SchedX has a rigorous test suite enforcing mathematical invariants at every layer of the stack.
-
-**Run C Engine Tests (Python unittests)**
-```bash
-cd scheduler
-python -m unittest discover tests
-```
-
-**Run Backend API Tests (Jest)**
-```bash
-cd backend
-npm test
+🧠 How It Works
+```text
+User Configures Workload (Vercel Frontend)
+│
+▼
+HTTP POST /api/simulate (Express Backend)
+│
+▼
+Node.js spawns C Engine with JSON stdin
+│
+▼
+C Engine calculates ticks, preemptions, & aging
+│
+▼
+C Engine stdout: JSON Execution Trace
+│
+▼
+Backend validates trace & returns HTTP 200 OK
+│
+▼
+React renders Animated Gantt Charts & Metrics
 ```
 
-**Build Next.js Frontend**
-```bash
-cd frontend
-npm run build
-```
+📈 Impact
+This project demonstrates how low-level systems programming and strict deterministic algorithms can be modernized into a full-stack web application by:
+- Bridging the gap between academic C programming and modern Next.js visualization.
+- Preventing main-thread UI freezing by offloading heavy simulations to a native binary.
+- Enforcing algorithmic correctness at the API level via dual-layer testing (Jest + Python).
+- Creating structured, traceable pipelines from OS logic to user-facing analytics.
 
-Memory safety in C is validated via AddressSanitizer (`make asan`), eliminating Stack Overflow constraints for large JSON payloads.
+🎯 Future Improvements
+- Support for Multi-Core CPU Scheduling architectures (SMP).
+- Export historical simulation data to Excel and CSV.
+- Real-time WebSockets for massive simulations that exceed standard HTTP timeout limits.
+- Interactive memory management and paging simulation integration.
+
+📜 License
+This project is licensed under the MIT License.
+
+👨‍💻 Author
+Harsh Vardhan
+GitHub: https://github.com/Harshv2608
+
+⭐ If you found this project useful, consider giving it a star!
