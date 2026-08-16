@@ -13,7 +13,7 @@ export default function DocsPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="architecture" className="flex flex-col md:flex-row gap-8">
+      <Tabs defaultValue="architecture" orientation="vertical" className="flex flex-col md:flex-row gap-8">
         <TabsList className="flex flex-col h-auto w-full md:w-64 bg-transparent justify-start items-stretch p-0 gap-2 border-r pr-4">
           <TabsTrigger value="getting-started" className="justify-start px-4 py-3 data-[state=active]:bg-primary/10">
             <Rocket className="w-4 h-4 mr-3" /> Getting Started

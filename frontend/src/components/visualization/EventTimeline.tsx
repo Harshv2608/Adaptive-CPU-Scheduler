@@ -31,8 +31,8 @@ export const EventTimeline = ({ events }: Props) => {
   };
 
   return (
-    <div className="flex flex-col bg-card border rounded-lg h-[400px]">
-      <div className="p-4 border-b flex items-center justify-between">
+    <div className="flex flex-col bg-card border rounded-lg h-[400px] overflow-hidden">
+      <div className="p-4 border-b flex items-center justify-between shrink-0">
         <h3 className="text-sm font-semibold text-muted-foreground tracking-widest">
           EVENT TIMELINE
         </h3>
@@ -52,8 +52,8 @@ export const EventTimeline = ({ events }: Props) => {
         </div>
       </div>
 
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
+      <ScrollArea className="flex-1 overflow-hidden p-4">
+        <div className="space-y-4 pr-4">
           <AnimatePresence>
             {filteredEvents.map((e, idx) => (
               <motion.div
