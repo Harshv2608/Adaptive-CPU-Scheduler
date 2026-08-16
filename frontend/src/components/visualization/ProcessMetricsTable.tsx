@@ -14,8 +14,8 @@ export const ProcessMetricsTable = ({ result, processes }: Props) => {
         PROCESS METRICS
       </h3>
       
-      <div className="border rounded-md overflow-hidden">
-        <Table>
+      <div className="border rounded-md overflow-x-auto">
+        <Table className="min-w-[600px]">
           <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead>PID</TableHead>

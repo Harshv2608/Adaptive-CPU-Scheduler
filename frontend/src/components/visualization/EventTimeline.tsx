@@ -40,6 +40,7 @@ export const EventTimeline = ({ events }: Props) => {
           {['ALL', 'CPU', 'PREEMPTION', 'AGING', 'COMPLETION'].map(f => (
             <button
               key={f}
+              aria-label={`Filter events by ${f}`}
               onClick={() => setFilter(f)}
               className={`text-xs px-2 py-1 rounded-md transition-colors ${
                 filter === f ? 'bg-primary text-primary-foreground font-medium' : 'hover:bg-muted text-muted-foreground'
@@ -81,7 +82,7 @@ export const EventTimeline = ({ events }: Props) => {
                   </div>
                   <div className="mt-1 font-medium">
                     {e.type === 'PREEMPTION' && '⚡ PREEMPTION'}
-                    {e.type === 'AGING' && '⌛ AGING'}
+                    {e.type === 'AGING' && '🚀 AGING'}
                     {e.type !== 'PREEMPTION' && e.type !== 'AGING' && e.type.replace('_', ' ')}
                   </div>
                   <div className="text-muted-foreground mt-1">

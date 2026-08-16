@@ -96,38 +96,83 @@ export default function SimulatorPage() {
     <div className="flex flex-col h-full">
       <PageContainer>
         <div className={`flex flex-col h-full ${result ? "pb-0" : ""}`}>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          <div>
-            <h1 className="text-3xl font-bold mb-1">Simulator</h1>
-            <p className="text-muted-foreground">Build a workload and run the CPU scheduling simulation.</p>
-          </div>
-          <WorkloadPresets onLoadPreset={setProcesses} disabled={isSimulating} />
-        </div>
-        
-        {error && (
-          <div className="bg-destructive/10 text-destructive border border-destructive/20 rounded-md p-4 mb-6 flex items-center gap-3 shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <div>
-              <span className="font-semibold block">Simulation failed</span>
-              <span className="text-sm opacity-90">{error}</span>
+              <h1 className="text-3xl font-bold mb-1">Interactive Simulator</h1>
+              <p className="text-muted-foreground">Configure the scheduler, build a workload, and analyze the results.</p>
             </div>
+            <WorkloadPresets onLoadPreset={setProcesses} disabled={isSimulating} />
           </div>
-        )}
+          
+          {error && (
+            <div className="bg-destructive/10 text-destructive border border-destructive/30 rounded-lg p-6 mb-8 flex items-start gap-4 shadow-sm animate-in fade-in">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-triangle mt-1 shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+              <div>
+                <h3 className="font-bold text-lg mb-1">Simulation Engine Error</h3>
+                <p className="text-sm opacity-90 leading-relaxed">
+                  {error.includes("fetch") 
+                    ? "Unable to reach the Express backend API. Please ensure the server is running on port 3001."
+                    : error}
+                </p>
+                {error.includes("fetch") && (
+                  <div className="mt-4 p-3 bg-background/50 rounded text-xs font-mono border border-destructive/20">
+                    $ npm run start:backend
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
-        <div className={`space-y-6 ${result ? "hidden" : "pb-8"}`}>
-          <SimulationConfigPanel config={config} setConfig={setConfig} disabled={isSimulating} />
-          
-          <WorkloadBuilder onGenerate={setProcesses} disabled={isSimulating} />
-          
-          <ProcessTable processes={processes} setProcesses={setProcesses} disabled={isSimulating} />
-        </div>
-        
-        {result && (
-          <div className="mt-8 pb-8 border-t pt-8">
-            <h2 className="text-2xl font-bold mb-6">Simulation Results</h2>
-            <SimulationPlayback result={result} processes={processes} />
+          <div className={`space-y-12 ${result ? "hidden" : "pb-12"}`}>
+            {/* Step 1 */}
+            <section className="space-y-4 relative">
+              <div className="flex items-center gap-3 border-b pb-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">1</span>
+                <h2 className="text-xl font-semibold tracking-tight">Configure Scheduler</h2>
+              </div>
+              <SimulationConfigPanel config={config} setConfig={setConfig} disabled={isSimulating} />
+            </section>
+            
+            {/* Step 2 */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-3 border-b pb-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">2</span>
+                <h2 className="text-xl font-semibold tracking-tight">Generate Workload</h2>
+              </div>
+              <WorkloadBuilder onGenerate={setProcesses} disabled={isSimulating} />
+            </section>
+            
+            {/* Step 3 */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">3</span>
+                  <h2 className="text-xl font-semibold tracking-tight">Review Process Queue</h2>
+                </div>
+                <span className="text-sm font-medium text-muted-foreground">{processes.length} / 500 Processes</span>
+              </div>
+              
+              {processes.length === 0 ? (
+                <div className="border-2 border-dashed rounded-xl p-12 text-center flex flex-col items-center justify-center bg-muted/20">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-inbox text-muted-foreground/50 mb-4"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                  <h3 className="font-semibold text-lg mb-1">Queue is Empty</h3>
+                  <p className="text-sm text-muted-foreground max-w-sm">Use the Workload Generator above or manually add processes to start a simulation.</p>
+                </div>
+              ) : (
+                <ProcessTable processes={processes} setProcesses={setProcesses} disabled={isSimulating} />
+              )}
+            </section>
           </div>
-        )}
+          
+          {result && (
+            <div className="mt-8 pb-12 pt-4">
+              <div className="flex items-center gap-3 border-b pb-2 mb-8">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">4</span>
+                <h2 className="text-2xl font-bold tracking-tight">Simulation Analysis</h2>
+              </div>
+              <SimulationPlayback result={result} processes={processes} />
+            </div>
+          )}
         </div>
       </PageContainer>
       

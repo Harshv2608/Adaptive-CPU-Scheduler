@@ -32,17 +32,43 @@ export default function AlgorithmsPage() {
           <Card>
             <CardHeader>
               <CardTitle>First-Come, First-Served (FCFS)</CardTitle>
-              <CardDescription>The simplest, non-preemptive scheduling algorithm.</CardDescription>
+              <CardDescription>The simplest scheduling algorithm.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>Processes are dispatched according to their arrival time. Once a process gets the CPU, it keeps it until it finishes its burst time.</p>
-              <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-semibold mb-2">Pros & Cons</h4>
-                <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-                  <li>Easy to implement (FIFO queue).</li>
-                  <li>No starvation (every process eventually runs).</li>
-                  <li><strong>Convoy Effect:</strong> Short processes can get stuck behind long processes, leading to high average waiting times.</li>
-                </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-primary">Concept & How it works</h4>
+                    <p className="text-sm text-muted-foreground">Processes are dispatched according to their arrival time. The ready queue is managed as a strict FIFO queue.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-primary">Preemption</h4>
+                    <p className="text-sm text-muted-foreground"><strong>Non-preemptive.</strong> Once a process gets the CPU, it keeps it until it finishes its burst.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-primary">Complexity</h4>
+                    <p className="text-sm text-muted-foreground">O(1) scheduling decision.</p>
+                  </div>
+                </div>
+                <div className="space-y-4 bg-muted/30 p-4 rounded-lg border border-border/50">
+                  <div>
+                    <h4 className="font-semibold text-green-500">Strengths</h4>
+                    <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                      <li>Trivially easy to implement.</li>
+                      <li>No starvation (every process eventually runs).</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-destructive">Weaknesses</h4>
+                    <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                      <li><strong>Convoy Effect:</strong> Short processes can get stuck behind long processes, leading to terrible average waiting times.</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-blue-500">When to use it</h4>
+                    <p className="text-sm text-muted-foreground">Background batch systems where turnaround time doesn't matter, or as a secondary tie-breaker algorithm.</p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -52,17 +78,43 @@ export default function AlgorithmsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Shortest Job First (SJF)</CardTitle>
-              <CardDescription>Non-preemptive algorithm that selects the job with the smallest burst time.</CardDescription>
+              <CardDescription>Optimized for minimal waiting time.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>When the CPU is available, it is assigned to the process that has the smallest next CPU burst. If two processes have the same burst time, FCFS scheduling is used to break the tie.</p>
-              <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-semibold mb-2">Pros & Cons</h4>
-                <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-                  <li>Yields the minimum average waiting time for a given set of processes.</li>
-                  <li><strong>Starvation:</strong> Long processes may never execute if short processes keep arriving.</li>
-                  <li>Impossible to implement perfectly in reality (cannot predict exact burst times).</li>
-                </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-primary">Concept & How it works</h4>
+                    <p className="text-sm text-muted-foreground">When the CPU is available, it is assigned to the process that has the smallest burst time. If two processes have the same burst, FCFS is used to break the tie.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-primary">Preemption</h4>
+                    <p className="text-sm text-muted-foreground"><strong>Non-preemptive.</strong> (The preemptive version is called Shortest Remaining Time First).</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-primary">Complexity</h4>
+                    <p className="text-sm text-muted-foreground">O(N) to find the shortest job in an unsorted queue, or O(log N) with a min-heap.</p>
+                  </div>
+                </div>
+                <div className="space-y-4 bg-muted/30 p-4 rounded-lg border border-border/50">
+                  <div>
+                    <h4 className="font-semibold text-green-500">Strengths</h4>
+                    <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                      <li>Provably yields the minimum average waiting time for a given set of processes.</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-destructive">Weaknesses</h4>
+                    <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                      <li><strong>Starvation:</strong> Long processes may never execute if short processes keep arriving.</li>
+                      <li>Impossible to implement perfectly in reality (cannot predict exact future burst times).</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-blue-500">When to use it</h4>
+                    <p className="text-sm text-muted-foreground">Long-term job scheduling where runtimes are estimated (e.g., rendering jobs, scientific computing).</p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -72,17 +124,44 @@ export default function AlgorithmsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Round Robin (RR)</CardTitle>
-              <CardDescription>Preemptive algorithm designed for time-sharing systems.</CardDescription>
+              <CardDescription>Designed for time-sharing systems.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>A small unit of time, called a time quantum, is defined. The ready queue is treated as a circular queue. The scheduler goes around the ready queue, allocating the CPU to each process for a time interval of up to one time quantum.</p>
-              <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-semibold mb-2">Pros & Cons</h4>
-                <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-                  <li>Excellent response time, ideal for interactive environments.</li>
-                  <li>Performance depends heavily on the size of the time quantum.</li>
-                  <li>Too large quantum = degenerates to FCFS. Too small = excessive context switching overhead.</li>
-                </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-primary">Concept & How it works</h4>
+                    <p className="text-sm text-muted-foreground">A small unit of time (time quantum) is defined. The scheduler goes around the circular ready queue, allocating the CPU to each process for up to one quantum.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-primary">Preemption</h4>
+                    <p className="text-sm text-muted-foreground"><strong>Preemptive.</strong> Processes are interrupted after their quantum expires.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-primary">Complexity</h4>
+                    <p className="text-sm text-muted-foreground">O(1) scheduling decision.</p>
+                  </div>
+                </div>
+                <div className="space-y-4 bg-muted/30 p-4 rounded-lg border border-border/50">
+                  <div>
+                    <h4 className="font-semibold text-green-500">Strengths</h4>
+                    <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                      <li>Excellent response time, ideal for interactive environments.</li>
+                      <li>Fairness: Every process gets an equal share of the CPU.</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-destructive">Weaknesses</h4>
+                    <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                      <li>Performance depends entirely on the size of the time quantum.</li>
+                      <li>Too large = degenerates to FCFS. Too small = excessive context switching overhead.</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-blue-500">When to use it</h4>
+                    <p className="text-sm text-muted-foreground">Interactive systems (like desktop OSs) where users expect immediate feedback.</p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -95,13 +174,39 @@ export default function AlgorithmsPage() {
               <CardDescription>Selects the highest priority process available.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>A priority is associated with each process, and the CPU is allocated to the process with the highest priority. If a new process arrives with a higher priority than the currently running process, it preempts it.</p>
-              <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-semibold mb-2">Pros & Cons</h4>
-                <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-                  <li>Ensures critical tasks are handled immediately.</li>
-                  <li><strong>Starvation:</strong> Low priority processes can wait indefinitely (solved via aging).</li>
-                </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-primary">Concept & How it works</h4>
+                    <p className="text-sm text-muted-foreground">A priority is associated with each process. The CPU is allocated to the process with the highest priority.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-primary">Preemption</h4>
+                    <p className="text-sm text-muted-foreground"><strong>Preemptive.</strong> If a new process arrives with a higher priority than the currently running process, it preempts it.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-primary">Complexity</h4>
+                    <p className="text-sm text-muted-foreground">O(log N) with a priority queue (heap).</p>
+                  </div>
+                </div>
+                <div className="space-y-4 bg-muted/30 p-4 rounded-lg border border-border/50">
+                  <div>
+                    <h4 className="font-semibold text-green-500">Strengths</h4>
+                    <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                      <li>Ensures critical, high-importance tasks are handled immediately.</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-destructive">Weaknesses</h4>
+                    <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                      <li><strong>Starvation:</strong> Low priority processes can wait indefinitely (the famous "MIT rumor" of 1973 where a low-priority job waited 10 years).</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-blue-500">When to use it</h4>
+                    <p className="text-sm text-muted-foreground">Real-time operating systems (RTOS), mission-critical systems, or as the top tier of a Multi-Level Queue.</p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

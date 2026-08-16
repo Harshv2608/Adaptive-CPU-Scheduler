@@ -1,7 +1,7 @@
 #ifndef TRACE_H
 #define TRACE_H
 
-#define MAX_EVENTS 500
+#define MAX_EVENTS 100000
 
 typedef enum {
     EVENT_ARRIVAL,

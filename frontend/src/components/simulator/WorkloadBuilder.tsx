@@ -67,12 +67,12 @@ export const WorkloadBuilder = ({ onGenerate, disabled }: Props) => {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Process Count</Label>
-              <Input type="number" min={1} max={500} value={count} onChange={e => setCount(parseInt(e.target.value) || 0)} disabled={disabled} />
+              <Label htmlFor="processCount">Process Count</Label>
+              <Input id="processCount" aria-label="Process Count" type="number" min={1} max={500} value={count} onChange={e => setCount(parseInt(e.target.value) || 0)} disabled={disabled} />
             </div>
             <div className="space-y-2">
-              <Label>Random Seed</Label>
-              <Input type="number" value={seed} onChange={e => setSeed(parseInt(e.target.value) || 0)} disabled={disabled} />
+              <Label htmlFor="randomSeed">Random Seed</Label>
+              <Input id="randomSeed" aria-label="Random Seed" type="number" value={seed} onChange={e => setSeed(parseInt(e.target.value) || 0)} disabled={disabled} />
             </div>
           </div>
           
@@ -80,17 +80,17 @@ export const WorkloadBuilder = ({ onGenerate, disabled }: Props) => {
             <div className="space-y-2">
               <Label>Min/Max Arrival Time</Label>
               <div className="flex items-center gap-2">
-                <Input type="number" min={0} value={minArrival} onChange={e => setMinArrival(parseInt(e.target.value) || 0)} disabled={disabled} />
+                <Input aria-label="Minimum Arrival Time" type="number" min={0} value={minArrival} onChange={e => setMinArrival(parseInt(e.target.value) || 0)} disabled={disabled} />
                 <span>-</span>
-                <Input type="number" min={0} value={maxArrival} onChange={e => setMaxArrival(parseInt(e.target.value) || 0)} disabled={disabled} />
+                <Input aria-label="Maximum Arrival Time" type="number" min={0} value={maxArrival} onChange={e => setMaxArrival(parseInt(e.target.value) || 0)} disabled={disabled} />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Min/Max Burst Time</Label>
               <div className="flex items-center gap-2">
-                <Input type="number" min={1} value={minBurst} onChange={e => setMinBurst(parseInt(e.target.value) || 1)} disabled={disabled} />
+                <Input aria-label="Minimum Burst Time" type="number" min={1} value={minBurst} onChange={e => setMinBurst(parseInt(e.target.value) || 1)} disabled={disabled} />
                 <span>-</span>
-                <Input type="number" min={1} value={maxBurst} onChange={e => setMaxBurst(parseInt(e.target.value) || 1)} disabled={disabled} />
+                <Input aria-label="Maximum Burst Time" type="number" min={1} value={maxBurst} onChange={e => setMaxBurst(parseInt(e.target.value) || 1)} disabled={disabled} />
               </div>
             </div>
           </div>
@@ -100,25 +100,25 @@ export const WorkloadBuilder = ({ onGenerate, disabled }: Props) => {
           <h4 className="text-sm font-semibold text-muted-foreground mb-2">Process Class Distribution (Weights)</h4>
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>Batch</Label>
-              <Input type="number" min={0} value={distBatch} onChange={e => setDistBatch(parseInt(e.target.value) || 0)} disabled={disabled} />
+              <Label htmlFor="distBatch">Batch</Label>
+              <Input id="distBatch" aria-label="Batch Process Weight" type="number" min={0} value={distBatch} onChange={e => setDistBatch(parseInt(e.target.value) || 0)} disabled={disabled} />
             </div>
             <div className="space-y-2">
-              <Label>Interactive</Label>
-              <Input type="number" min={0} value={distInteractive} onChange={e => setDistInteractive(parseInt(e.target.value) || 0)} disabled={disabled} />
+              <Label htmlFor="distInt">Interactive</Label>
+              <Input id="distInt" aria-label="Interactive Process Weight" type="number" min={0} value={distInteractive} onChange={e => setDistInteractive(parseInt(e.target.value) || 0)} disabled={disabled} />
             </div>
             <div className="space-y-2">
-              <Label>Real-Time</Label>
-              <Input type="number" min={0} value={distRT} onChange={e => setDistRT(parseInt(e.target.value) || 0)} disabled={disabled} />
+              <Label htmlFor="distRT">Real-Time</Label>
+              <Input id="distRT" aria-label="Real-Time Process Weight" type="number" min={0} value={distRT} onChange={e => setDistRT(parseInt(e.target.value) || 0)} disabled={disabled} />
             </div>
           </div>
           
           <div className="space-y-2 pt-2">
               <Label>Priority Range</Label>
               <div className="flex items-center gap-2">
-                <Input type="number" min={1} value={minPriority} onChange={e => setMinPriority(parseInt(e.target.value) || 1)} disabled={disabled} />
+                <Input aria-label="Minimum Priority" type="number" min={1} value={minPriority} onChange={e => setMinPriority(parseInt(e.target.value) || 1)} disabled={disabled} />
                 <span>-</span>
-                <Input type="number" min={1} value={maxPriority} onChange={e => setMaxPriority(parseInt(e.target.value) || 1)} disabled={disabled} />
+                <Input aria-label="Maximum Priority" type="number" min={1} value={maxPriority} onChange={e => setMaxPriority(parseInt(e.target.value) || 1)} disabled={disabled} />
               </div>
           </div>
         </div>

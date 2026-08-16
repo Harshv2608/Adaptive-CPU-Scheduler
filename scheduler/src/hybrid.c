@@ -19,12 +19,12 @@ static int get_adaptive_quantum(int interactive_count) {
     return 4; // 1-2 interactive processes
 }
 
-struct Result hybrid_scheduler(struct Process p[], int n, int aging_threshold) {
+struct Result* hybrid_scheduler(struct Process p[], int n, int aging_threshold) {
     int current_time = 0, completed = 0, last_interactive = -1;
     int busy_time = 0, context_switches = 0;
     float total_wt = 0, total_tat = 0, total_rt = 0;
     
-    struct Result r;
+    static struct Result r;
     init_trace(&r.trace);
     r.total_time = 0;
     
@@ -196,5 +196,5 @@ struct Result hybrid_scheduler(struct Process p[], int n, int aging_threshold) {
     r.cpu_util = ((float)busy_time / current_time) * 100;
     r.context_switches = context_switches;
     
-    return r;
+    return &r;
 }

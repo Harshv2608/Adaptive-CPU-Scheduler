@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include "../include/scheduler.h"
 
-struct Result fcfs_scheduler(struct Process p[], int n) {
+struct Result* fcfs_scheduler(struct Process p[], int n) {
     int time = 0, completed = 0, busy_time = 0, context_switches = 0;
     float total_wt = 0, total_tat = 0, total_rt = 0;
-    struct Result r;
+    static struct Result r;
     init_trace(&r.trace);
     r.total_time = 0;
     int running_idx = -1;
@@ -80,5 +80,5 @@ struct Result fcfs_scheduler(struct Process p[], int n) {
     r.avg_rt = total_rt / n;
     r.cpu_util = (time > 0) ? ((float)busy_time / time) * 100 : 0.0;
     r.context_switches = context_switches;
-    return r;
+    return &r;
 }

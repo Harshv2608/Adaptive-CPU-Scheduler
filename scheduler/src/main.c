@@ -24,17 +24,17 @@ void print_gantt(int timeline[], int length) {
     printf("\n");
 }
 
-void print_comparison(struct Result h, struct Result f, struct Result s, struct Result p, struct Result r) {
+void print_comparison(struct Result *h, struct Result *f, struct Result *s, struct Result *p, struct Result *r) {
     printf("\n\n============================================================\n");
     printf("                PERFORMANCE COMPARISON\n");
     printf("============================================================\n");
     printf("%-15s %-12s %-12s %-12s\n", "Algorithm", "Avg WT", "Avg TAT", "CPU Util (%)");
     printf("------------------------------------------------------------\n");
-    printf("%-15s %-12.2f %-12.2f %-12.2f\n", "Hybrid", h.avg_wt, h.avg_tat, h.cpu_util);
-    printf("%-15s %-12.2f %-12.2f %-12.2f\n", "FCFS", f.avg_wt, f.avg_tat, f.cpu_util);
-    printf("%-15s %-12.2f %-12.2f %-12.2f\n", "SJF", s.avg_wt, s.avg_tat, s.cpu_util);
-    printf("%-15s %-12.2f %-12.2f %-12.2f\n", "Priority", p.avg_wt, p.avg_tat, p.cpu_util);
-    printf("%-15s %-12.2f %-12.2f %-12.2f\n", "Round Robin", r.avg_wt, r.avg_tat, r.cpu_util);
+    printf("%-15s %-12.2f %-12.2f %-12.2f\n", "Hybrid", h->avg_wt, h->avg_tat, h->cpu_util);
+    printf("%-15s %-12.2f %-12.2f %-12.2f\n", "FCFS", f->avg_wt, f->avg_tat, f->cpu_util);
+    printf("%-15s %-12.2f %-12.2f %-12.2f\n", "SJF", s->avg_wt, s->avg_tat, s->cpu_util);
+    printf("%-15s %-12.2f %-12.2f %-12.2f\n", "Priority", p->avg_wt, p->avg_tat, p->cpu_util);
+    printf("%-15s %-12.2f %-12.2f %-12.2f\n", "Round Robin", r->avg_wt, r->avg_tat, r->cpu_util);
     printf("============================================================\n");
 }
 
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
 
     struct Process original[MAX_PROCESSES];
     struct Process temp[MAX_PROCESSES];
-    struct Result r_h, r_f, r_s, r_p, r_rr;
+    struct Result *r_h, *r_f, *r_s, *r_p, *r_rr;
     int n;
 
     if (!json_mode) {
@@ -113,23 +113,23 @@ int main(int argc, char *argv[]) {
 
     copy_processes(original, temp, n);
     if (json_mode) {
-        struct Result r_selected;
+        struct Result *r_selected = NULL;
         if (strcmp(algorithm, "FCFS") == 0) {
             r_selected = fcfs_scheduler(temp, n);
-            print_json_output(temp, n, &r_selected, 0, 0, "FCFS");
+            print_json_output(temp, n, r_selected, 0, 0, "FCFS");
         } else if (strcmp(algorithm, "SJF") == 0) {
             r_selected = sjf_scheduler(temp, n);
-            print_json_output(temp, n, &r_selected, 0, 0, "SJF");
+            print_json_output(temp, n, r_selected, 0, 0, "SJF");
         } else if (strcmp(algorithm, "PRIORITY") == 0) {
             r_selected = priority_scheduler(temp, n);
-            print_json_output(temp, n, &r_selected, 0, 0, "PRIORITY");
+            print_json_output(temp, n, r_selected, 0, 0, "PRIORITY");
         } else if (strcmp(algorithm, "ROUND_ROBIN") == 0) {
             r_selected = round_robin_scheduler(temp, n, time_quantum);
-            print_json_output(temp, n, &r_selected, time_quantum, 0, "ROUND_ROBIN");
+            print_json_output(temp, n, r_selected, time_quantum, 0, "ROUND_ROBIN");
         } else {
             // Default to Hybrid
             r_selected = hybrid_scheduler(temp, n, aging_threshold);
-            print_json_output(temp, n, &r_selected, 0, aging_threshold, "HYBRID");
+            print_json_output(temp, n, r_selected, 0, aging_threshold, "HYBRID");
         }
         return 0;
     }
@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
     copy_processes(original, temp, n);
     r_rr = round_robin_scheduler(temp, n, 2);
 
-    print_gantt(r_h.timeline, r_h.total_time);
+    print_gantt(r_h->timeline, r_h->total_time);
     print_comparison(r_h, r_f, r_s, r_p, r_rr);
 
     return 0;
